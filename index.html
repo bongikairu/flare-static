@@ -232,14 +232,7 @@
 				//$("#equipmentlist").html("");
 				setInterval(refreshList,3000);
 				$("#addmodelbtn").click(addModel);
-				/* $('#modelname').keyup(function(e){
-					if(e.keyCode == 13)
-					{
-						var current = $(this).typeahead("getActive");
-						console.log(current);
-						//addModel();
-					}
-				}); */
+				
 				$('#modelname').typeahead({ 
 					source:[
 						"models/heroes/bane/bane.vmdl_c",
