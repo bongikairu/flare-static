@@ -64,6 +64,7 @@
 		
 		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="bootstrap3-typeahead.min.js"></script>
 	</head>
 	<body>
 		<nav class="navbar navbar-default">
@@ -98,8 +99,17 @@
 						<div class="visible-xl-block col-xl-12">
 							<hr />
 						</div>
-						<div class="col-lg-8 col-xl-12">
-							Equipment list goes here	
+						<div class="col-lg-8 col-xl-12" id="equipmentlist">
+							Equipment list goes here
+							<br />
+							<br />
+							<h3>Current models</h3>
+							<ul id="modellist">
+								<!-- <li>- <span class="remover" data-remove="-1">[X]</span></li> -->
+							</ul>
+							<br />
+							<input class="form-control"  type="text" id="modelname" placeholder="models/heroes/<something> (Try bounty)" autocomplete="off" />
+							<br /><input type=button id="addmodelbtn" class="btn btn-primary" value="Add Model" />
 						</div>
 					</div>
 				</div>
@@ -113,7 +123,10 @@
 
 			var Module = {
 				preRun: [],
-				postRun: [],
+				postRun: function() {
+					console.log("Preparing Browser-side UI");
+					prepareUI();
+				},
 				print: (function() {
 					var element = document.getElementById('output');
 					if (element) element.value = ''; // clear browser cache
@@ -172,18 +185,91 @@
 				totalDependencies: 0,
 				monitorRunDependencies: function(left) {
 					this.totalDependencies = Math.max(this.totalDependencies, left);
-					Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+					Module.setStatus(left ? 'Starting... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
 				}
 			};
-			Module.setStatus('Downloading...');
+			Module.setStatus('Loading Engine...');
 			window.onerror = function(event) {
 				// TODO: do not warn on ok events like simulating an infinite loop or exitStatus
-				Module.setStatus('Exception thrown, see JavaScript console');
+				Module.setStatus('JavaScript error, open console for more details (Ctrl-Shift-J)');
 				//spinnerElement.style.display = 'none';
 				Module.setStatus = function(text) {
 					if (text) Module.printErr('[post-exception status] ' + text);
 				};
 			};
+			
+			// Flare Engine UI
+			function removeModel()
+			{
+				var v = parseInt($(this).attr('data-remove'));
+				console.log("Removing "+v);
+				Module.MC_RemoveModel(Module.MC_GetModel(v));
+				refreshList();
+			}
+			
+			function refreshList()
+			{
+				var count = Module.MC_ModelCount();
+				$("#modellist").html("");
+				for(var v=0;v<count;v++)
+				{
+					var $li = $("<li></li>");
+					$li.append($("<span></span>").text(Module.MC_GetModel(v) + " "));
+					$li.append($("<span></span>").text("[X]").attr('data-remove',v).click(removeModel));
+					$("#modellist").append($li);
+				}
+			}
+			
+			function addModel()
+			{
+				Module.MC_AddModel($('#modelname').val());	
+				$('#modelname').val("");
+				refreshList();
+			}
+
+			function prepareUI()
+			{
+				//$("#equipmentlist").html("");
+				setInterval(refreshList,3000);
+				$("#addmodelbtn").click(addModel);
+				/* $('#modelname').keyup(function(e){
+					if(e.keyCode == 13)
+					{
+						var current = $(this).typeahead("getActive");
+						console.log(current);
+						//addModel();
+					}
+				}); */
+				$('#modelname').typeahead({ 
+					source:[
+						"models/heroes/bane/bane.vmdl_c",
+						
+						"models/heroes/axe/axe.vmdl_c",
+						"models/heroes/axe/axe_armor.vmdl_c",
+						"models/heroes/axe/axe_belt.vmdl_c",
+						"models/heroes/axe/axe_ponytail.vmdl_c",
+						"models/heroes/axe/axe_weapon.vmdl_c",
+						
+						"models/items/axe/guillotine_weapon/guillotine_weapon.vmdl_c",
+						"models/items/axe/axe_practos_weapon/axe_practos_weapon.vmdl_c",
+						"models/items/axe/corruptor/corruptor.vmdl_c",
+						
+						"models/heroes/ogre_magi/ogre_magi.vmdl_c",
+						"models/heroes/ogre_magi/ogre_magi_belt.vmdl_c",
+						"models/heroes/ogre_magi/ogre_magi_bracers.vmdl_c",
+						"models/heroes/ogre_magi/ogre_magi_cape.vmdl_c",
+						"models/heroes/ogre_magi/ogre_magi_hats.vmdl_c",
+						"models/heroes/ogre_magi/ogre_magi_weapon.vmdl_c",
+						
+						"models/courier/baby_rosh/babyroshan.vmdl_c",
+						"models/items/courier/bearzky/bearzky.vmdl_c",
+						"models/items/courier/bearzky/bearzky_flying.vmdl_c",
+					],
+					afterSelect: addModel,
+					autoSelect: false,
+				});
+			};
+			
 		</script>
 		<script async type="text/javascript" src="raw.js"></script>
 	</body>
