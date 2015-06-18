@@ -21,7 +21,7 @@
 			#canvasdiv
 			{
 				overflow: hidden;
-				height: 640px;
+				height: 960px;
 				border-bottom: 3px solid #000;
 				text-align: center;
 			}
@@ -122,6 +122,7 @@
 			//var progressElement = document.getElementById('progress');
 
 			var Module = {
+				noExitRuntime: true,
 				preRun: [],
 				postRun: function() {
 					console.log("Preparing Browser-side UI");
