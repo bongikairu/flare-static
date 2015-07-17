@@ -1,4 +1,36 @@
-<html><head><meta charset="UTF-8"><style>
+<html><head><meta charset="UTF-8"><!--
+    @license
+    Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
+The complete set of authors may be found at http://polymer.github.io/AUTHORS
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+--><!--
+@license
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><style>
 
   /*******************************
             Flex Layout
@@ -18846,7 +18878,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-size: cover;
     } 
     canvas.emscripten { 
-				border: 0px none; 
+				border: 0px none;
 				margin: auto 0;
         padding: 0;
         width:100%;
@@ -19034,7 +19066,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button icon="arrow-back" list-toggle=""></paper-icon-button>
             <div class="title flex">D2Armory</div>
             <paper-icon-button icon="social:share" on-tap="shareIconTap"></paper-icon-button>
-            <paper-icon-button icon="refresh" on-tap="refreshModelList"></paper-icon-button>
+            <paper-icon-button icon="refresh" on-tap="resetHeroModels"></paper-icon-button>
             <paper-icon-button icon="more-vert" on-tap="openAboutDialog"></paper-icon-button>
           </paper-toolbar>
 
@@ -19134,6 +19166,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           //'resize': 'setCanvasSize',
         },
         setCanvasSize: function(){
+          //obsolete
           var w = this.$.canvasDiv.clientWidth;
           var h = this.$.canvasDiv.clientHeight;
           console.log('Canvas container size: ',w,h);
@@ -19234,9 +19267,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         heroesResponse: function(r){
           //console.log(r.detail.response);
-          //if(app.ready) this.heroid=1;
-          //else {console.log('app not ready')}
-          //this.refreshModelList();
           this.splice('heroes',0,0,{
               id:'courier',
               name:'Couriers',
@@ -19254,15 +19284,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           for(var i in r.detail.response.items)
           {
             //handle styles
-            if("visuals" in r.detail.response.items[i] && 
-              "styles" in r.detail.response.items[i].visuals)
+            if('visuals' in r.detail.response.items[i] && 
+              'styles' in r.detail.response.items[i].visuals)
             {
               for(var j in r.detail.response.items[i].visuals.styles){
-                if("model_player" in r.detail.response.items[i].visuals.styles[j]){
+                if('model_player' in r.detail.response.items[i].visuals.styles[j]){
                   var temp = JSON.parse(JSON.stringify(r.detail.response.items[i]));
                   temp.model_player = temp.visuals.styles[j].model_player;
-                  temp.name += " "+(parseInt(j)+1);
-                  if("alternate_icon" in temp.visuals.styles[j]){
+                  temp.name += ' '+(parseInt(j)+1);
+                  if('alternate_icon' in temp.visuals.styles[j]){
                     temp.image_inventory = temp.visuals.alternate_icons[
                       parseInt(temp.visuals.styles[j].alternate_icon)].icon_path;
                   }
@@ -19311,7 +19341,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.closeItemSearch();
           
           console.log('econItemsResponse: ',this.econItems);
-          this.refreshModelList();
+          this.resetHeroModels();
         },
         heroImageUrl:function(k){
           if(k==='courier'){
@@ -19484,11 +19514,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           e.stopPropagation();
           this.appMessage('Item Data logged in the Console');
         },
-        refreshModelList: function() {
-            //this.$.status.innerHTML='';//clear status
+        resetHeroModels: function() {
             this.clearModel();
-            this.setCanvasSize();
-            this.resetScene();
+            this.resetCamera();
             this.addItem(this.hero);
             for(var i in this.econItems.items)
             {
@@ -19498,7 +19526,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
         },
-        resetScene:function(){
+        resetCamera:function(){
           Module.SC_SetCamTarget(0,100,0);
           Module.SC_SetCamPosition(300,100,0);
           Module.SC_SetCamRotationSpeed(-Math.PI/9000,Math.PI/900,0);

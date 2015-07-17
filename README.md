@@ -1,5 +1,7 @@
 # Flare-Static
 
-Compiled version of [https://github.com/bongikairu/flare](https://github.com/bongikairu/flare)
+Code for http://beta.d2armory.com/
 
-For dota2 assets serving, see [https://github.com/bongikairu/donkey](https://github.com/bongikairu/donkey)
+Compiled version of [flare](https://github.com/d2armory/flare) and [flare-frontend](https://github.com/wq9/flare-frontend)
+
+For dota2 assets serving, see [donkey](https://github.com/d2armory/donkey)
