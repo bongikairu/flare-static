@@ -15,8 +15,28 @@ var Module = {
         };
         window.addEventListener("keydown", GLFW.onKeydown, true);
         
+        //handle resize
+        GLFW.onResize = function(event) {
+          var w = Module['canvas'].clientWidth*window.devicePixelRatio;
+          var h = Module['canvas'].clientHeight*window.devicePixelRatio;
+          console.log('onResize',w,h,window.devicePixelRatio);
+          Module.setCanvasSize(w,h,false);
+          Module.GL_SetViewPort(w,h);
+        };
+        window.addEventListener('resize', GLFW.onResize, true);
+        GLFW.onResize(null);
+        
+        //handle mousewheel
+        function setCanvasZoom(e2){
+            var e = window.event || e2; // old IE support
+            var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+            //console.log(delta);
+            Module.SC_SetCamZoom(delta*-25);
+        }
+        document.getElementById('canvasDiv').addEventListener('mousewheel', setCanvasZoom, false);
+        document.getElementById('canvasDiv').addEventListener('DOMMouseScroll', setCanvasZoom, false);
+        
         app.ready=true;
-        //prepareUI();
     },
     canvas: (function() {
         var canvas = document.getElementById('canvas');
