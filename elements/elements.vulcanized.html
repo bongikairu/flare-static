@@ -18941,6 +18941,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color:white;
       text-shadow: -1px 0 0.2em black,0 1px 0.2em black,1px 0 0.2em black,0 -1px 0.2em black;
     }
+    
     .itemSlotDiv{
       position:relative;
       color:white;
@@ -18952,6 +18953,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .itemSlotDiv div{
       position:absolute;
     }
+    
+    .itemSlotDiv[rarity='common']{
+      box-shadow: 0px 0px 4px 2px#b0c3d9;
+    }
+    .itemSlotDiv[rarity='uncommon']{
+      box-shadow: 0px 0px 4px 2px#5e98d9;
+    }
+    .itemSlotDiv[rarity='rare']{
+      box-shadow: 0px 0px 4px 2px#4b69ff;
+    }
+    .itemSlotDiv[rarity='mythical']{
+      box-shadow: 0px 0px 4px 2px#8847ff;
+    }
+    .itemSlotDiv[rarity='legendary']{
+      box-shadow: 0px 0px 4px 2px#d32ce6;
+    }
+    .itemSlotDiv[rarity='ancient']{
+      box-shadow: 0px 0px 4px 2px#eb4b4b;
+    }
+    .itemSlotDiv[rarity='immortal']{
+      box-shadow: 0px 0px 4px 2px#e4ae39;
+    }
+    .itemSlotDiv[rarity='arcana']{
+      box-shadow: 0px 0px 4px 2px#ade55c;
+    }
+    
     .closeItemSlot{
       padding:0;
       position:absolute;
@@ -19010,7 +19037,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="flex itemSlotContainer" style="overflow:auto;width:100%;text-align:center;">
               
               <template is="dom-repeat" items="{{models}}">
-                  <div class="itemSlotDiv" on-tap="setItemSearch">
+                  <div class="itemSlotDiv" on-tap="setItemSearch" rarity$="{{item.item_rarity}}">
                     <iron-image class="fit" sizing="contain" preload="" fade="" src="{{item.image}}" placeholder="//dotaflame.com/images/econ/default_item.png"></iron-image>
                     <div class="itemName">{{item.name}}</div>
                     <div class="itemSlot">{{capitalize(item.item_slot)}}</div>
@@ -19048,7 +19075,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           
           <div class="itemContainerDiv">
           <template is="dom-repeat" items="{{econItems.items}}" filter="itemSearch" id="itemGridRepeat">
-            <div class="itemSlotDiv itemGrid" on-tap="equipItem">
+            <div class="itemSlotDiv itemGrid" on-tap="equipItem" rarity$="{{item.item_rarity}}">
               <iron-image class="fit" sizing="contain" preload="" fade="" src="{{item.image}}" placeholder="//dotaflame.com/images/econ/default_item.png"></iron-image>
               <div class="itemName">{{item.name}}</div>
               <div class="itemSlot">{{capitalize(item.item_slot)}}</div>
@@ -19064,7 +19091,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           
           <paper-toolbar>
             <paper-icon-button icon="arrow-back" list-toggle=""></paper-icon-button>
-            <div class="title flex">D2Armory [BETA]</div>
+            <div class="title flex">D2Armory Beta</div>
             <paper-icon-button icon="social:share" on-tap="shareIconTap"></paper-icon-button>
             <paper-icon-button icon="refresh" on-tap="resetHeroModels"></paper-icon-button>
             <paper-icon-button icon="more-vert" on-tap="openAboutDialog"></paper-icon-button>
@@ -19270,7 +19297,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.splice('heroes',0,0,{
               id:'courier',
               name:'Couriers',
-              item_slot: 'courier_flying',
+              item_slot: 'courier',
               Model: 'models/props_gameplay/donkey_wings.mdl'
             },{
               'id':'ward',
@@ -19281,6 +19308,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.heroSelectionDialog.open();
         },
         econItemsResponse: function(r){
+          if(this.hero.id !== 'courier' && this.hero.id !== 'ward'){
+            r.detail.response.items.push(this.hero);
+          }
+          
           for(var i in r.detail.response.items)
           {
             //handle styles
@@ -19380,12 +19411,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               return;
             }
             
-            o._model = o._model.replace('.mdl','.vmdl_c');
+            o._model = o._model.replace('.mdl','.vmdl')+'_c';
             
             console.log('addModel: ', o.item_slot, o.name);
             console.log(o);
             this.push('models',o);
             Module.MC_AddModel(o._model);
+            
+            if('visuals' in o && 'skin' in o.visuals) Module.MC_SetMatOffset(o._model, parseInt(o.visuals.skin));
         },
         removeModel: function(o){
           console.log('removeModel: ', o.item_slot, o.name);
@@ -19401,12 +19434,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.removeModel(e.model.item);
         },
         addItem: function(item){
+          
+          console.log('Adding '+item.name);
+          
+          var position = {x: 0, y:0, z:0};
+          
+          var isWard = false;
+          
           //summons
           if('visuals' in item){
             for(var am in item.visuals){
               //wards, summons
               if(item.visuals[am].type==='entity_model'){
                 item._model=item.visuals[am].modifier;
+                if(item.visuals[am].asset==='npc_dota_observer_wards')
+                {
+                  isWard = true;
+                }
               }
               //courier
               else if(item.visuals[am].type==='courier'){
@@ -19433,15 +19477,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 item._model=item.visuals[am].modifier;
               }
               
-              
             }
           }
           
-          //hero base model
+          if(item.name==='Wards') isWard = true;
+          
+          if(item.item_slot==='courier') position.z = -100;
+          if(item.item_slot==='courier_flying') position.z = 100;
+          
+          //hero base model or default ward/courier
           if('Model' in item){
             item._model = item.Model;
             item.image = this.heroImageUrl(this.hero.id);
-            item.item_slot = 'hero';
+            if(!('item_slot' in item)){
+              item.item_slot = 'hero';
+            }
           }
           
           //items with models
@@ -19449,7 +19499,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             item._model = item.model_player;
           }
           
+          // ward
+          if(isWard)
+          {
+            console.log("Item is a ward, duplicating sentry one");
+            // add observer ward
+            var sentryItem = JSON.parse(JSON.stringify(item));;
+            sentryItem._model += "#sentry";
+            this.addModel(sentryItem);
+            // TODO: move thse Module setting somewhere else
+            Module.MC_SetMatOffset(sentryItem._model,1);
+            Module.MC_SetPosition(sentryItem._model,0,0,100);
+            
+            item._model += "#observer";
+            position.z = -100;
+          }
+          
           this.addModel(item); //name,item_slot,_model,image
+          
+          Module.MC_SetPosition(item._model,position.x,position.y,position.z);
+          
         },
         equipItem: function(e){
           var item = e.model.item;
